@@ -1,0 +1,16 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CMP1903M Assessment 2", "CMP1903M Assessment 2\CMP1903M Assessment 2.csproj", "{E1A01FC1-5FCB-4F8E-95AA-835ED832B068}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E1A01FC1-5FCB-4F8E-95AA-835ED832B068}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E1A01FC1-5FCB-4F8E-95AA-835ED832B068}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E1A01FC1-5FCB-4F8E-95AA-835ED832B068}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E1A01FC1-5FCB-4F8E-95AA-835ED832B068}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
