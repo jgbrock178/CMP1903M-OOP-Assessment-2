@@ -4,11 +4,59 @@ using System.Linq;
 
 namespace CMP1903M_Assessment_2
 {
+    /// <summary>
+    /// Contains all logic for the Game UI in the console.
+    /// </summary>
     public class GameUi
     {
-        private int LeftMargin { set; get; } = 2;
+        private string LeftMargin { set; get; } = new string(' ', 2);
+        private Player[] _players;
+        private Player _currentPlayer;
+        
+        /// <summary>
+        /// Current round number.
+        /// </summary>
+        public int RoundNumber { set; get; }
+        
+        /// <summary>
+        /// Sets the players in the UI.
+        /// </summary>
+        /// <param name="value">A Player array of game players.</param>
+        public void SetPlayers(ref Player[] value)
+        {
+            _players = value;
+        }
 
-        public static int MainMenu()
+        private Player[] Players()
+        {
+            return _players;
+        }
+
+        /// <summary>
+        /// Sets the current player in the UI.
+        /// </summary>
+        /// <param name="currentPlayer">Player object of the current player.</param>
+        /// <returns>Returns the current player.</returns>
+        public Player SetCurrentPlayer(ref Player currentPlayer)
+        {
+            _currentPlayer = currentPlayer;
+            return _currentPlayer;
+        }
+
+        /// <summary>
+        /// Current player object.
+        /// </summary>
+        /// <returns>Current player object.</returns>
+        private Player CurrentPlayer()
+        {
+            return _currentPlayer;
+        }
+
+        /// <summary>
+        /// Outputs the main menu to the console.
+        /// </summary>
+        /// <returns>An integer representing the selected option.</returns>
+        public int MainMenu()
         {
             int index = 0;
             
@@ -48,11 +96,15 @@ namespace CMP1903M_Assessment_2
             }
         }
         
-        public static int GameOverScreen(Player playerOne, Player playerTwo)
+        /// <summary>
+        /// Outputs the game over screen to the console.
+        /// </summary>
+        /// <returns>An integer representing the option selected.</returns>
+        public int GameOverScreen()
         {
             int index = 0;
             
-            PrintReplayMenu(playerOne, playerTwo);
+            PrintReplayMenu();
 
             while(true)
             {
@@ -65,7 +117,7 @@ namespace CMP1903M_Assessment_2
                     if (index + 1 < 3)
                     {
                         index++;
-                        PrintReplayMenu(playerOne, playerTwo, index);
+                        PrintReplayMenu(index);
                     }
                 }
                 else if (keyPressed.Key == ConsoleKey.LeftArrow)
@@ -73,7 +125,7 @@ namespace CMP1903M_Assessment_2
                     if (index - 1 >= 0)
                     {
                         index--;
-                        PrintReplayMenu(playerOne, playerTwo, index);
+                        PrintReplayMenu(index);
                     }
                 }
                 else if (keyPressed.Key == ConsoleKey.Enter)
@@ -83,12 +135,19 @@ namespace CMP1903M_Assessment_2
                 }
                 else
                 {
-                    PrintReplayMenu(playerOne, playerTwo, index);
+                    PrintReplayMenu(index);
                 }
             }
         }
 
-        public static string ReadKey(int limit = 0)
+        /// <summary>
+        /// Allows the input of text in the console, limited by a number of digits. Will only allow integers and numbers
+        /// to be entered - all other characters are ignored. When limit is hit, no further characters will be entered
+        /// (user will see no further characters output in terminal).
+        /// </summary>
+        /// <param name="limit">The limit of the input text. If non given, will allow unlimited text length.</param>
+        /// <returns>A string of the entered text.</returns>
+        private string ReadKey(int limit = 0)
         {
             string output = "";
             ConsoleKeyInfo keyPressed;
@@ -106,7 +165,7 @@ namespace CMP1903M_Assessment_2
                         Console.CursorLeft -= 1;
                     }
                 }
-                else if ((char.IsLetter(keyPressed.KeyChar) || keyPressed.Key == ConsoleKey.Spacebar) 
+                else if ((char.IsLetter(keyPressed.KeyChar) || char.IsNumber(keyPressed.KeyChar) || keyPressed.Key == ConsoleKey.Spacebar) 
                          && (output.Length < limit || limit == 0))
                 {
                     output += keyPressed.KeyChar.ToString();
@@ -117,19 +176,19 @@ namespace CMP1903M_Assessment_2
             return output;
         }
 
-        public static string GetPlayerName(string prompt)
+        /// <summary>
+        /// Prompts the user to enter their name via the console.
+        /// </summary>
+        /// <param name="prompt">The prompt text to print.</param>
+        /// <returns>A string containing the players name.</returns>
+        public string GetPlayerName(string prompt)
         {
             Console.Clear();
             PrintMenuHeader();
-            return PrintPrompt(prompt);
-        }
-
-        public static string PrintPrompt(string prompt, bool confirm = false)
-        {
             prompt += ": ";
             Console.CursorTop -= 1;
             Console.WriteLine(@" ╠═══════════════════════════════════════════════════════════════╣");
-            Console.WriteLine($" ║ {prompt.ToString(),-61} ║");
+            Console.WriteLine($" ║ {prompt,-61} ║");
             Console.WriteLine(@" ╚═══════════════════════════════════════════════════════════════╝");
             Console.ForegroundColor = ConsoleColor.DarkGray;
             Console.WriteLine(@"Press enter to confirm.".PadCenter(66));
@@ -140,7 +199,60 @@ namespace CMP1903M_Assessment_2
             return ReadKey(10);
         }
 
-        public static bool QuitConfirmation()
+        /// <summary>
+        /// Prompts the user for input via the console and only allows validated input. It invalid input entered, shows
+        /// an error to the user and re-prompts.
+        /// </summary>
+        /// <param name="prompt">The prompt to output to the console.</param>
+        /// <param name="validInputs">A string array of the valid inputs allowed.</param>
+        /// <returns>A string representing the entered text.</returns>
+        public string GetValidatedUserInput(string prompt, string[] validInputs)
+        {
+            prompt += ": ";
+            Console.Clear();
+            PrintMenuHeader();
+            Console.CursorTop -= 1;
+            Console.WriteLine(@" ╠═══════════════════════════════════════════════════════════════╣");
+            Console.WriteLine($" ║ {prompt,-61} ║");
+            Console.WriteLine(@" ╚═══════════════════════════════════════════════════════════════╝");
+            Console.ForegroundColor = ConsoleColor.DarkGray;
+            Console.WriteLine(@"Press enter to confirm.".PadCenter(66));
+            Console.ResetColor();
+            Console.CursorTop -= 3;
+            Console.CursorLeft += prompt.Length + 3;
+            
+            string option = ReadKey();
+            Console.CursorTop += 1;
+            
+            while (!validInputs.Contains(option))
+            {
+                Console.WriteLine();
+                Console.CursorTop -= 3;
+                Console.WriteLine(@" ╠═══════════════════════════════════════════════════════════════╣");
+                Console.Write(" ║ ");
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.Write("Invalid input, please try again.".PadRight(61));
+                Console.ResetColor();
+                Console.WriteLine(" ║");
+                Console.WriteLine($" ║ {prompt,-61} ║");
+                Console.WriteLine(@" ╚═══════════════════════════════════════════════════════════════╝");
+                Console.ForegroundColor = ConsoleColor.DarkGray;
+                Console.WriteLine(@"Press enter to confirm.".PadCenter(66));
+                Console.ResetColor();
+                Console.CursorTop -= 3;
+                Console.CursorLeft += prompt.Length + 3;
+                option = ReadKey();
+            }
+
+            return option;
+        }
+
+        /// <summary>
+        /// Shows a confirmation menu to the user asking whether they really want to quit and handles logic for their
+        /// input.
+        /// </summary>
+        /// <returns>A boolean representing the users chosen option.</returns>
+        public bool QuitConfirmation()
         {
             int index = 0;
             //PrintQuitConfirmation();
@@ -179,7 +291,11 @@ namespace CMP1903M_Assessment_2
             }
         }
 
-        private static void PrintQuitConfirmation(int selectedOption = 0)
+        /// <summary>
+        /// Prints the confirmation for quitting based on what option is currently selected.
+        /// </summary>
+        /// <param name="selectedOption">The index of the currently selected option.</param>
+        private void PrintQuitConfirmation(int selectedOption = 0)
         {
             string[,] yesStates = new string[,]
             {
@@ -244,79 +360,35 @@ namespace CMP1903M_Assessment_2
             Console.WriteLine(@"Use arrow keys to select option.".PadCenter(66));
             Console.ResetColor();
         }
-
+        
         /// <summary>
-        /// Prints the board to the console.
+        /// Prints the game board showing the current state.
         /// </summary>
-        /// <param name="playerOne">Player one object</param>
-        /// <param name="playerTwo">Player two object</param>
-        /// <param name="dice">An array of D6 die.</param>
-        /// <param name="message">Either a string or any enumerable type with strings (for multiple lines).</param>
-        public static void PrintBoard(Player playerOne, Player playerTwo, D6[] dice, object message, 
-            bool rollingDie = false, List<int> highlights = null)
-        {
-            string[] player1Score = DrawScore(playerOne.Score, 3);
-            string[] player2Score = DrawScore(playerTwo.Score, 3);
-            string[] dice1 = dice[0].DrawDie();
-            string[] dice2 = dice[1].DrawDie();
-            string[] dice3 = dice[2].DrawDie();
-            string[] dice4 = dice[3].DrawDie();
-            string[] dice5 = dice[4].DrawDie();
+        /// <param name="dice">A D6 array representing the game dice.</param>
+        /// <param name="message">The message to output at the bottom of the UI.</param>
+        public void PrintBoard(D6[] dice, object message) {
+            string[] dice1 = dice[0].DrawCurrentDie();
+            string[] dice2 = dice[1].DrawCurrentDie();
+            string[] dice3 = dice[2].DrawCurrentDie();
+            string[] dice4 = dice[3].DrawCurrentDie();
+            string[] dice5 = dice[4].DrawCurrentDie();
 
-            if (highlights == null)
+            // Print the game header
+            if (_players.Length == 2)
             {
-                highlights = new List<int>();
+                PrintTwoPlayerBoardHeader();
             }
-
-            Console.Clear();
-            Console.WriteLine(" ╔══════════════╤═════════════════════════════════╤══════════════╗");
-            Console.Write(" ║  ");
-            if (playerTwo.CurrentTurn)
+            else
             {
-                Console.Write(playerOne.Name.PadCenter(10));
+                PrintMultiplayerBoardHeader();
             }
-            else if (playerOne.CurrentTurn)
-            {
-                Console.ForegroundColor = ConsoleColor.Green;
-                Console.Write(playerOne.Name.PadCenter(10));
-                Console.ResetColor();
-            }
-            Console.Write("  │");
             
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.Write(playerOne.CurrentTurn ? " ← ← ←" : "      ");
-            
-            Console.Write(new string(' ', 21));
-            
-            Console.Write(playerTwo.CurrentTurn ? "→ → → " : "      ");
-            Console.ResetColor();
-            
-            Console.Write("│  ");
-            if (playerOne.CurrentTurn)
-            {
-                Console.Write(playerTwo.Name.PadCenter(10));
-            }
-            else if (playerTwo.CurrentTurn)
-            {
-                Console.ForegroundColor = ConsoleColor.Green;
-                Console.Write(playerTwo.Name.PadCenter(10));
-                Console.ResetColor();
-            }
-            Console.WriteLine("  ║");
-
-            for (int i = 0; i < 3; i++)
-            {
-                Console.Write($" ║ {player1Score[i]} │");
-                Console.Write("                                 ");
-                Console.WriteLine($"│ {player2Score[i]} ║");
-            }
-            Console.WriteLine(" ╟──────────────╯                                 ╰──────────────╢");
-            Console.WriteLine(" ║                                                               ║");
+            Console.WriteLine(LeftMargin + "║                                                               ║");
             for (int i = 0; i < 5; i++)
             {
-                Console.Write(" ║    ");
+                Console.Write(LeftMargin + "║    ");
                 Console.ForegroundColor = ConsoleColor.DarkBlue;
-                if (highlights.Contains(dice[0].CurrentValue) && (!rollingDie || dice[0].Locked))
+                if (dice[0].Locked)
                 {
                     Console.ForegroundColor = ConsoleColor.Green;
                     Console.Write(dice1[i]);
@@ -327,7 +399,7 @@ namespace CMP1903M_Assessment_2
                     Console.Write(dice1[i]);
                 }
                 
-                if (highlights.Contains(dice[1].CurrentValue) && (!rollingDie || dice[1].Locked))
+                if (dice[1].Locked)
                 {
                     Console.ForegroundColor = ConsoleColor.Green;
                     Console.Write(dice2[i]);
@@ -338,7 +410,7 @@ namespace CMP1903M_Assessment_2
                     Console.Write(dice2[i]);
                 }
                 
-                if (highlights.Contains(dice[2].CurrentValue) && (!rollingDie || dice[2].Locked))
+                if (dice[2].Locked)
                 {
                     Console.ForegroundColor = ConsoleColor.Green;
                     Console.Write(dice3[i]);
@@ -349,7 +421,7 @@ namespace CMP1903M_Assessment_2
                     Console.Write(dice3[i]);
                 }
                 
-                if (highlights.Contains(dice[3].CurrentValue) && (!rollingDie || dice[3].Locked))
+                if (dice[3].Locked)
                 {
                     Console.ForegroundColor = ConsoleColor.Green;
                     Console.Write(dice4[i]);
@@ -360,7 +432,7 @@ namespace CMP1903M_Assessment_2
                     Console.Write(dice4[i]);
                 }
                 
-                if (highlights.Contains(dice[4].CurrentValue) && (!rollingDie || dice[4].Locked))
+                if (dice[4].Locked)
                 {
                     Console.ForegroundColor = ConsoleColor.Green;
                     Console.Write(dice5[i]);
@@ -374,41 +446,241 @@ namespace CMP1903M_Assessment_2
                 Console.ResetColor();
                 Console.WriteLine("    ║");
             }
-            Console.WriteLine(" ║                                                               ║");
-            Console.WriteLine(" ╟───────────────────────────────────────────────────────────────╢");
+            Console.WriteLine(LeftMargin + "║                                                               ║");
+            Console.WriteLine(LeftMargin + "╟───────────────────────────────────────────────────────────────╢");
 
             if (message is string)
             {
-                Console.WriteLine($" ║ {message.ToString().PadCenter(61)} ║");
+                Console.WriteLine(LeftMargin + $"║ {message.ToString().PadCenter(61)} ║");
             }
             else if (message is IEnumerable<object> lines)
             {
                 foreach (var line in lines)
                 {
-                    Console.WriteLine($" ║ {line.ToString().PadCenter(61)} ║");
+                    Console.WriteLine(LeftMargin + $"║ {line.ToString().PadCenter(61)} ║");
                 }
             }
-            Console.WriteLine(" ╚═══════════════════════════════════════════════════════════════╝");
-                
-                
-            //Console.WriteLine(" ║  Player One  │ ← Current Player                │  Player Two  ║");
-            //Console.WriteLine(" ║ ╭──╮╭──╮╭──╮ │                                 │ ╭──╮ ╶┐ ╭──╮ ║");
-            //Console.WriteLine(" ║ │  ││  ││  │ │                                 │ │  │  │ │  │ ║");
-            //Console.WriteLine(" ║ ╰──╯╰──╯╰──╯ │                                 │ ╰──╯ ╶┴╴╰──╯ ║");
-            //Console.WriteLine(" ╟──────────────╯                                 ╰──────────────╢");
-            //Console.WriteLine(" ║                                                               ║");
-            /*Console.WriteLine(" ║    ╭─────────╮╭─────────╮╭─────────╮╭─────────╮╭─────────╮    ║");
-            Console.WriteLine(" ║    │         ││  ⊙      ││  ⊙      ││  ⊙   ⊙  ││  ⊙   ⊙  │    ║");
-            Console.WriteLine(" ║    │    ⊙    ││         ││    ⊙    ││         ││    ⊙    │    ║");
-            Console.WriteLine(" ║    │         ││      ⊙  ││      ⊙  ││  ⊙   ⊙  ││  ⊙   ⊙  │    ║");
-            Console.WriteLine(" ║    ╰─────────╯╰─────────╯╰─────────╯╰─────────╯╰─────────╯    ║");
-            Console.WriteLine(" ║                                                               ║");
-            Console.WriteLine(" ╟───────────────────────────────────────────────────────────────╢");
-            Console.WriteLine(" ║  Press any key to roll...                                     ║");
-            Console.WriteLine(" ╚═══════════════════════════════════════════════════════════════╝");*/
+            Console.WriteLine(LeftMargin + "╚═══════════════════════════════════════════════════════════════╝");
+            
         }
 
-        private static void PrintMenuHeader()
+        /// <summary>
+        /// Prints the header for the game board when only 2 players are playing.
+        /// </summary>
+        /// <example>
+        /// Example of the board output:
+        /// <code>
+        ///  ╔══════════════╤═════════════════════════════════╤══════════════╗
+        ///  ║      Max     │ ← ← ←                           │     Jack     ║
+        ///  ║ ╭──╮╭──╮╭──╮ │                                 │ ╭──╮╭──╮╭──╮ ║
+        ///  ║ │  ││  ││  │ │                                 │ │  ││  ││  │ ║
+        ///  ║ ╰──╯╰──╯╰──╯ │                                 │ ╰──╯╰──╯╰──╯ ║
+        ///  ╟──────────────╯                                 ╰──────────────╢
+        /// </code>
+        /// </example>
+        private void PrintTwoPlayerBoardHeader()
+        {
+            Player playerOne = Players()[0];
+            Player playerTwo = Players()[1];
+
+            string[] player1Score = DrawScore(playerOne.Score, 3);
+            string[] player2Score = DrawScore(playerTwo.Score, 3);
+
+            Console.SetCursorPosition(0, 0);
+            //Console.Clear();
+            Console.WriteLine("");
+            Console.WriteLine(LeftMargin + "╔══════════════╤═════════════════════════════════╤══════════════╗");
+            Console.Write(LeftMargin + "║  ");
+            if (playerTwo == CurrentPlayer())
+            {
+                Console.Write(playerOne.Name.PadCenter(10));
+            }
+            else if (playerOne == CurrentPlayer())
+            {
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.Write(playerOne.Name.PadCenter(10));
+                Console.ResetColor();
+            }
+            Console.Write("  │");
+            
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.Write(playerOne == _currentPlayer ? " ← ← ←" : "      ");
+            
+            Console.Write(new string(' ', 21));
+            
+            Console.Write(playerTwo == _currentPlayer ? "→ → → " : "      ");
+            Console.ResetColor();
+            
+            Console.Write("│  ");
+            if (playerOne == CurrentPlayer())
+            {
+                Console.Write(playerTwo.Name.PadCenter(10));
+            }
+            else if (playerTwo == CurrentPlayer())
+            {
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.Write(playerTwo.Name.PadCenter(10));
+                Console.ResetColor();
+            }
+            Console.WriteLine("  ║");
+
+            for (int i = 0; i < 3; i++)
+            {
+                Console.Write(LeftMargin + $"║ {player1Score[i]} │");
+                Console.Write("                                 ");
+                Console.WriteLine($"│ {player2Score[i]} ║");
+            }
+            Console.WriteLine(LeftMargin + "╟──────────────╯                                 ╰──────────────╢");
+        }
+
+        /// <summary>
+        /// Prints the game board header when more than 2 players are playing.
+        /// </summary>
+        /// <example>
+        /// Example of the board output:
+        /// <code>
+        ///   ╔══════════════╤══════════════╤═════════════════════════════════╗
+        ///   ║      Max     │    Jenny     │                                 ║
+        ///   ║ ╭──╮╭──╮╭──╮ │ ╭──╮╭──╮╭──╮ │   Max  Jen  Mar  Lis  Sco  Bob  ║
+        ///   ║ │  ││  ││  │ │ │  ││  ││  │ │   000  000  000  000  010  000  ║
+        ///   ║ ╰──╯╰──╯╰──╯ │ ╰──╯╰──╯╰──╯ │         ▲                       ║
+        ///   ╟─╴LAST ROUND╶─┴─╴THIS ROUND╶─┴─────────────╴SCORES╶────────────╢
+        /// </code>
+        /// </example>
+        private void PrintMultiplayerBoardHeader()
+        {
+            int lastPlayerIndex = CurrentPlayer().PlayerNumber - 2 >= 0 ? CurrentPlayer().PlayerNumber - 2 : Players().Length - 1;
+            Player lastPlayer = _players[lastPlayerIndex];
+            string[] lastRoundScore = DrawScore(lastPlayer.Score, 3);
+            string[] currentScore = DrawScore(CurrentPlayer().Score, 3);
+            string[][] scoreMap = PrepareScoreMap();
+
+            Console.Clear();
+            Console.WriteLine("");
+            Console.WriteLine(LeftMargin + "╔══════════════╤══════════════╤═════════════════════════════════╗");
+            Console.Write(LeftMargin + "║ ");
+            if (RoundNumber == 1)
+            {
+                Console.Write("---".PadCenter(12) + " │ ");
+            }
+            else
+            {
+                Console.Write(lastPlayer.Name.PadCenter(12) + " │ ");
+            }
+            Console.WriteLine(CurrentPlayer().Name.PadCenter(12) + " │                                 ║");
+
+            int mapWhitespace = 31 - scoreMap[0].Length * 3;
+            int mapInterSpace = scoreMap[0].Length - 1;
+            int mapLeftWhitespace = (mapWhitespace - mapInterSpace) / 2;
+            int mapRightWhitespace = mapWhitespace - mapInterSpace - mapLeftWhitespace;
+            
+            for (int i = 0; i < 3; i++)
+            {
+                Console.Write(LeftMargin + "║ " + lastRoundScore[i] + " │ ");
+                Console.Write(currentScore[i] + " │ ");
+
+                Console.Write(new string(' ', mapLeftWhitespace));
+                for (int j = 0; j < scoreMap[i].Length; j++)
+                {
+                    if (CurrentPlayer().PlayerNumber == j + 1)
+                    {
+                        Console.ForegroundColor = ConsoleColor.Green;
+                    }
+                        
+                    Console.Write(scoreMap[i][j]);
+                    Console.ResetColor();
+                    if (j < scoreMap[i].Length - 1)
+                    {
+                        Console.Write(" ");
+                    }
+                }
+
+                Console.WriteLine(new string(' ', mapRightWhitespace) + " ║");
+            }
+
+            Console.Write(LeftMargin + "╟─╴");
+            Console.ForegroundColor = ConsoleColor.DarkGray;
+            Console.Write("Last Round");
+            Console.ResetColor();
+            Console.Write("╶─┴─╴");
+            Console.ForegroundColor = ConsoleColor.DarkGray;
+            Console.Write("This Round");
+            Console.ResetColor();
+            Console.Write("╶─┴─────────────╴");
+            Console.ForegroundColor = ConsoleColor.DarkGray;
+            Console.Write("Scores");
+            Console.ResetColor();
+            Console.WriteLine("╶────────────╢");
+
+            //Console.WriteLine(" ╔╤╤══════════════╤═════════════════════════════╤══════════════╤╤╗");
+            //Console.WriteLine(" ║││  Player One  │                             │  Player Two  ││║");
+            //Console.WriteLine(" ║││ ╭──╮╭──╮╭──╮ │  J   L   E   L   S   T   K  │ ╭──╮ ╶┐ ╭──╮ ││║");
+            //Console.WriteLine(" ║││ │  ││  ││  │ │ 000 000 000 000 010 000 000 │ │  │  │ │  │ ││║");
+            //Console.WriteLine(" ║││ ╰──╯╰──╯╰──╯ │              ▲              │ ╰──╯ ╶┴╴╰──╯ ││║");
+            //Console.WriteLine(" ╟┴┴──────────────╯                             ╰──────────────┴┴╢");
+            //Console.WriteLine(" ║                                                               ║");
+            
+            //Console.WriteLine(" ╔══════════════╤══════════════╤═════════════════════════════════╗");
+            //Console.WriteLine(" ║      Max     │    Jenny     │                                 ║");
+            //Console.WriteLine(" ║ ╭──╮╭──╮╭──╮ │ ╭──╮╭──╮╭──╮ │   Max  Jen  Mar  Lis  Sco  Bob  ║");
+            //Console.WriteLine(" ║ │  ││  ││  │ │ │  ││  ││  │ │   000  000  000  000  010  000  ║");
+            //Console.WriteLine(" ║ ╰──╯╰──╯╰──╯ │ ╰──╯╰──╯╰──╯ │         ▲                       ║");
+            //Console.WriteLine(" ╟─╴LAST ROUND╶─┴─╴THIS ROUND╶─┴─────────────╴SCORES╶────────────╢");
+            //Console.WriteLine(" ║                                                               ║");
+
+            //Console.WriteLine(" ╔╤╤═══════════════════════════╤═══╤═══════════════════════════╤╤╗");
+            //Console.WriteLine(" ║││ ╭──╮╭──╮╭──╮      John    │   │    Lisa      ╭──╮ ╶┐ ╭──╮ ││║");
+            //Console.WriteLine(" ║││ │  ││  ││  │ ╭────────────╯   ╰────────────╮ │  │  │ │  │ ││║");
+            //Console.WriteLine(" ║││ ╰──╯╰──╯╰──╯ │         ─ ─ ━ ━ ─ ─         │ ╰──╯ ╶┴╴╰──╯ ││║");
+            //Console.WriteLine(" ╟┴┴──────────────╯                             ╰──────────────┴┴╢");
+            //Console.WriteLine(" ║                                                               ║");
+        }
+
+        /// <summary>
+        /// Prepares the score map for for the game board when more than 2 players are playing.
+        /// </summary>
+        /// <returns>
+        /// A string[][] multi-dimensional array containing:
+        /// <list type="bullet">
+        /// <item>First 3 digits of name.</item>
+        /// <item>Current score.</item>
+        /// <item>Space or an indicator for the current player.</item>
+        /// </list>
+        /// <example>
+        /// <code>
+        ///   Max  Jen  Mar  Lis  Sco  Bob // First 3 letters of name
+        ///   000  000  000  000  010  000 // Score
+        ///         ▲                      // Current player indicator
+        /// </code>
+        /// </example>
+        /// </returns>
+        private string[][] PrepareScoreMap()
+        {
+            List<List<string>> outputData = new List<List<string>>()
+            {
+                new List<string>(), new List<string>(), new List<string>()
+            };
+            
+            foreach (var player in _players)
+            {
+                outputData[0].Add(player.Name.Length < 4 ? player.Name.PadCenter(3) : player.Name.Substring(0, 3));
+                outputData[1].Add(player.Score.ToString("D3"));
+                outputData[2].Add(player == CurrentPlayer() ? " ▲ " : "   ");
+            }
+
+            string[][] output = new[]
+            {
+                outputData[0].ToArray(),
+                outputData[1].ToArray(),
+                outputData[2].ToArray()
+            };
+            return output;
+        }
+
+        /// <summary>
+        /// Prints the menu header to the console.
+        /// </summary>
+        private void PrintMenuHeader()
         {
             string[] titleLogo = new[]
             {
@@ -420,6 +692,7 @@ namespace CMP1903M_Assessment_2
                 @"      |____/     \___/|_|      |_|  |_|\___/|_|  \___|       "
             };
             
+            Console.WriteLine("");
             Console.WriteLine(@" ╔═══════════════════════════════════════════════════════════════╗");
             foreach (string line in titleLogo)
             {
@@ -433,7 +706,11 @@ namespace CMP1903M_Assessment_2
             Console.WriteLine(@" ╠═══════════════════════════════════════════════════════════════╣");
         }
         
-        private static void PrintMainMenu(int selectedOption = 0)
+        /// <summary>
+        /// Prints the main menu to the console highlighting the current selection.
+        /// </summary>
+        /// <param name="selectedOption">The index of the selected option.</param>
+        private void PrintMainMenu(int selectedOption = 0)
         {
             string[,] playComputerStates = new string[,]
             {
@@ -449,17 +726,17 @@ namespace CMP1903M_Assessment_2
                 }
             };
 
-            string[,] twoPlayerStates = new string[,]
+            string[,] multiPlayerStates = new string[,]
             {
                 {
-                    "                ",
-                    "   Two Player   ",
-                    "                "
+                    "                 ",
+                    "   Multiplayer   ",
+                    "                 "
                 },
                 {
-                    "╭╴            ╶╮",
-                    "│  Two Player  │",
-                    "╰╴            ╶╯"
+                    "╭╴             ╶╮",
+                    "│  Multiplayer  │",
+                    "╰╴             ╶╯"
                 }
             };
 
@@ -481,7 +758,7 @@ namespace CMP1903M_Assessment_2
             PrintMenuHeader();
             
             int playComputerStateIndex = 0;
-            int twoPlayerStateIndex = 0;
+            int multiPlayerStateIndex = 0;
             int quitStateIndex = 0;
 
             // Output three rows to draw the buttons. Colours the currently selected button.
@@ -495,15 +772,15 @@ namespace CMP1903M_Assessment_2
                 }
                 Console.Write(playComputerStates[playComputerStateIndex, i]);
                 Console.ResetColor();
-                Console.Write("/".PadLeft(6-i) + new string(' ', i + 1));
+                Console.Write("/".PadLeft(5-i) + new string(' ', i + 1));
                 if (selectedOption == 1)
                 {
                     Console.ForegroundColor = ConsoleColor.Blue;
-                    twoPlayerStateIndex = 1;
+                    multiPlayerStateIndex = 1;
                 }
-                Console.Write(twoPlayerStates[twoPlayerStateIndex, i]);
+                Console.Write(multiPlayerStates[multiPlayerStateIndex, i]);
                 Console.ResetColor();
-                Console.Write("/".PadLeft(6-i) + new string(' ', i + 1));
+                Console.Write("/".PadLeft(5-i) + new string(' ', i + 2));
                 if (selectedOption == 2)
                 {
                     Console.ForegroundColor = ConsoleColor.Blue;
@@ -520,7 +797,11 @@ namespace CMP1903M_Assessment_2
             Console.ResetColor();
         }
         
-        private static void PrintReplayMenu(Player playerOne, Player playerTwo, int selectedOption = 0)
+        /// <summary>
+        /// Prints the replay menu at the end of each game, highlighting the currently selected option.
+        /// </summary>
+        /// <param name="selectedOption">Index of the current selected option.</param>
+        private void PrintReplayMenu(int selectedOption = 0)
         {
             string[,] playAgainStates = new string[,]
             {
@@ -568,7 +849,7 @@ namespace CMP1903M_Assessment_2
             int newGameStateIndex = 0;
             int quitStateIndex = 0;
 
-            PrintGameWon(playerOne, playerTwo);
+            PrintGameWon();
             
             // Output three rows to draw the buttons. Colours the currently selected button.
             for (int i = 0; i < 3; i++)
@@ -606,12 +887,13 @@ namespace CMP1903M_Assessment_2
             Console.ResetColor();
         }
 
-        public static void PrintGameWon(Player playerOne, Player playerTwo)
+        /// <summary>
+        /// Prints the game over message.
+        /// </summary>
+        private void PrintGameWon()
         {
-            Player winner;
-            
-            winner = playerOne.Score > playerTwo.Score ? playerOne : playerTwo;
-            
+            Player winner = _players.OrderByDescending(p => p.Score).First();
+
             string[] gameOverMessage = new[]
             {
                 @"  _____                         ____                 ",
@@ -623,12 +905,13 @@ namespace CMP1903M_Assessment_2
             };
 
             Console.Clear();
+            Console.WriteLine("");
             Console.WriteLine(@" ╔═══════════════════════════════════════════════════════════════╗");
             foreach (string line in gameOverMessage)
             {
                 Console.Write(" ║ ");
                 Console.ForegroundColor = ConsoleColor.Green;
-                Console.Write(line.ToString().PadCenter(61));
+                Console.Write(line.PadCenter(61));
                 Console.ResetColor();
                 Console.WriteLine(" ║");
             }
@@ -637,15 +920,14 @@ namespace CMP1903M_Assessment_2
             Console.WriteLine($" ║ {" ".PadCenter(61)} ║");
             Console.WriteLine(@" ╠═══════════════════════════════════════════════════════════════╣");
         }
-
-        // ---- -------- ---- -------- ---- -------- ---- -------- ---- -------- ---- -------- ---- -------- ---- -------- ---- -------- ---- --------    
-        // ╭──╮ ╭──────╮  ╶┐     ╶─┐   ╭──╮ ╭──────╮                                                                                                             
-        // │  │ │      │   │       │   ╭──┘        │                                                                                                         
-        // ╰──╯ │      │  ╶┴╴      │   └──╴ ╭──────┘                                                                                                              
-        //      │      │           │        │                                                                                                             
-        //      ╰──────╯         ╶─┴─╴      └──────╴                                                                                                            
         
-        private static string[] DrawScore(int score, int numberOfDigits = 0)
+        /// <summary>
+        /// Converts the given score into a larger version for printing to the game board.
+        /// </summary>
+        /// <param name="score">The score to be converted.</param>
+        /// <param name="numberOfDigits">The number of digits to display (pads the excess with 0).</param>
+        /// <returns>A string array containing the lines to be printed.</returns>
+        private string[] DrawScore(int score, int numberOfDigits = 0)
         {
             string[,] numbers = new string[,]
             {

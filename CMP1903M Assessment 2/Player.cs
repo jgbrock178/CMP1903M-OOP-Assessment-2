@@ -1,17 +1,49 @@
 namespace CMP1903M_Assessment_2
 {
+    /// <summary>
+    /// Abstract class for the Player. Contains default properties and methods for all players.
+    /// </summary>
     public abstract class Player
     {
-        public string Name { get; set; }
+        /// <summary>
+        /// The players name.
+        /// </summary>
+        public string Name { get; protected set; }
+        
+        /// <summary>
+        /// The players score.
+        /// </summary>
         public int Score { get; private set; }
         
-        public bool CurrentTurn { get; set; }
-
-        public Player(){}
+        /// <summary>
+        /// The players number.
+        /// </summary>
+        public int PlayerNumber { get; protected set; }
         
-        public Player(string name)
+        /// <summary>
+        /// The GameUI object for the game.
+        /// </summary>
+        protected GameUi Screen { get; set; }
+
+        /// <summary>
+        /// Abstract method to roll the dice.
+        /// </summary>
+        /// <param name="dice">A D6 array of the dice in play.</param>
+        /// <param name="autoRoll">Whether to auto-roll the dice, or prompt the user to press a key to roll them</param>
+        public abstract void RollDice(ref D6[] dice, bool autoRoll = false);
+        
+        /// <summary>
+        /// Default initializer for the Player.
+        /// </summary>
+        protected Player(){}
+
+        /// <summary>
+        /// Initializer for the player when Game UI is passed.
+        /// </summary>
+        /// <param name="screen">The GameUI object for the game.</param>
+        protected Player(GameUi screen)
         {
-            Name = name;
+            Screen = screen;
         }
 
         /// <summary>

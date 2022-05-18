@@ -6,7 +6,8 @@ namespace CMP1903M_Assessment_2
     public static class StringExtensions
     {
         /// <summary>
-        /// Pads the given string in equal amounts to center the string.
+        /// Pads the given string in equal amounts to center the string. If uneven, will lean to the left by
+        /// one character.
         /// </summary>
         /// <param name="content">The string to be padded.</param>
         /// <param name="limit">The length of the returned string.</param>
