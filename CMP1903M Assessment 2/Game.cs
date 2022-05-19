@@ -8,9 +8,6 @@ namespace CMP1903M_Assessment_2
     /// <summary>
     /// Class for the main game logic.
     /// </summary>
-    /// TODO: Allow user to go back on menu.
-    /// TODO: Add settings to allow user to change the win scenario.
-    /// TODO: Swap Computer Play and PVP in menu.
     public class Game
     {
         private int _currentPlayerIndex;
@@ -19,7 +16,7 @@ namespace CMP1903M_Assessment_2
         
         private GameUi Screen { get; set; }
         private int RoundNumber { get; set; }
-        private int WinCondition { get; set; } = 10;
+        private int WinCondition { get; set; } = 50;
         private D6[] _dice = new[]
         {
             new D6(1),
@@ -29,7 +26,7 @@ namespace CMP1903M_Assessment_2
             new D6(5)
         };
         
-        private Dictionary<int, int> _diceValueFrequency = new Dictionary<int, int>()
+        private readonly Dictionary<int, int> _diceValueFrequency = new Dictionary<int, int>()
         {
             {1, 0},
             {2, 0},
@@ -117,15 +114,15 @@ namespace CMP1903M_Assessment_2
                             message = "Bad luck! No points this round.";
                             break;
                         case 3:
-                            message = "You've got 3 of a kind. That's + 3 points!";
+                            message = $"{_currentPlayer.Name} got 3 of a kind. That's + 3 points!";
                             _currentPlayer.UpdateScore(3);
                             break;
                         case 4:
-                            message = "You've got 4 of a kind. That's + 6 points!";
+                            message = $"{_currentPlayer.Name} got 4 of a kind. That's + 6 points!";
                             _currentPlayer.UpdateScore(6);
                             break;
                         case 5:
-                            message = "You've got 5 of a kind. That's + 12 points!";
+                            message = $"{_currentPlayer.Name} got 5 of a kind. That's + 12 points!";
                             _currentPlayer.UpdateScore(12);
                             break;
                     }
@@ -147,18 +144,19 @@ namespace CMP1903M_Assessment_2
                         message = "Oh no! No points this turn.";
                         break;
                     case 2:
-                        message = "You've got 2 of a kind. Click to roll again.";
+                        message = _diceValueFrequency.Count(f => f.Value == 2) == 2 ? $"{_currentPlayer.Name} got 2 x 2 of a kind. " : $"{_currentPlayer.Name} got 2 of a kind. ";
+                        message += _currentPlayer is ComputerPlayer ? "Rolling again!" : "Press to roll again.";
                         break;
                     case 3:
-                        message = "You've got 3 of a kind. That's + 3 points!";
+                        message = $"{_currentPlayer.Name} got 3 of a kind. That's + 3 points!";
                         _currentPlayer.UpdateScore(3);
                         break;
                     case 4:
-                        message = "You've got 4 of a kind. That's + 6 points!";
+                        message = $"{_currentPlayer.Name} got 4 of a kind. That's + 6 points!";
                         _currentPlayer.UpdateScore(6);
                         break;
                     case 5:
-                        message = "You've got 5 of a kind. That's + 12 points!";
+                        message = $"{_currentPlayer.Name} got 5 of a kind. That's + 12 points!";
                         _currentPlayer.UpdateScore(12);
                         break;
                 }
@@ -209,12 +207,12 @@ namespace CMP1903M_Assessment_2
         public int StartGame()
         {
             Screen = new GameUi();
-            RoundNumber = 1;
             bool skipMenu = false;
             bool quitConfirmed = false;
             int option = 0;
             while (true)
             {
+                RoundNumber = 1;
                 if (!skipMenu)
                 {
                     option = Screen.MainMenu();
@@ -225,13 +223,12 @@ namespace CMP1903M_Assessment_2
                     case 0: // Game Mode: Player VS Computer
                         if (!skipMenu)
                         {
-                            // TODO: Change numOfPlayers to be an interactive menu instead of input.
                             string numOfPlayers = Screen.GetValidatedUserInput("How many computer players (1-5)",
                                 new[] {"1", "2", "3", "4", "5"});
+
+                            _players = new Player[int.Parse(numOfPlayers) + 1];    
                             
-                            _players = new Player[Int32.Parse(numOfPlayers) + 1];    
-                            
-                            for (int i = 1; i <= Int32.Parse(numOfPlayers); i++)
+                            for (int i = 1; i <= int.Parse(numOfPlayers); i++)
                             {
                                 ComputerPlayer compPlayer = new ComputerPlayer(Screen, i + 1);
                                 compPlayer.GetPlayerName(_players.Where(p => p != null)

@@ -8,6 +8,8 @@ namespace CMP1903M_Assessment_2
     /// </summary>
     public class D6 : IDie
     {
+        private readonly Random _random = new Random();
+        
         /// <summary>
         /// Current value of the die.
         /// </summary>
@@ -43,14 +45,38 @@ namespace CMP1903M_Assessment_2
         }
 
         /// <summary>
-        /// "Rolls the die" generating a random number between 1 and 6.
+        /// "Rolls the die" generating a random number between 1 and 6. If die is locked/held, will just return current
+        /// value.
         /// </summary>
+        /// <remarks>
+        /// Note that some operating systems (such as Windows) will generate the same random number when separate
+        /// objects track their own Random variable and Random.next() is called at almost the same time. Recommended to
+        /// pass in a random number.
+        /// </remarks>
         /// <returns>An integer representing the number rolled.</returns>
         public int Roll()
         {
             if (Locked) return CurrentValue;
-            var rand = new Random();
-            CurrentValue = rand.Next(6) + 1;
+            CurrentValue = _random.Next(1, 7);
+            return CurrentValue;
+        }
+        
+        /// <summary>
+        /// "Rolls the die" and updates the value to be the value given. If die is locked/held, will just return current
+        /// value. This can be used if the random number is generated elsewhere.
+        /// </summary>
+        /// <param name="number">The number to set the value as.</param>
+        /// <returns>An integer representing the number rolled/set.</returns>
+        public int Roll(int number)
+        {
+            int[] allowedValues = Enumerable.Range(1, 6).ToArray();
+            if (!allowedValues.Contains(number))
+            {
+                throw new DieValueNotValidException(number);
+            }
+            
+            if (Locked) return CurrentValue;
+            CurrentValue = number;
             return CurrentValue;
         }
         
@@ -78,33 +104,33 @@ namespace CMP1903M_Assessment_2
             {
                 {
                     "│         │",
-                    "│    ⊙    │",
+                    "│    ●    │",
                     "│         │"
                 },
                 {
-                    "│ ⊙       │",
+                    "│ ●       │",
                     "│         │",
-                    "│       ⊙ │"
+                    "│       ● │"
                 },
                 {
-                    "│ ⊙       │",
-                    "│    ⊙    │",
-                    "│       ⊙ │"
+                    "│ ●       │",
+                    "│    ●    │",
+                    "│       ● │"
                 },
                 {
-                    "│ ⊙     ⊙ │",
+                    "│ ●     ● │",
                     "│         │",
-                    "│ ⊙     ⊙ │"
+                    "│ ●     ● │"
                 },
                 {
-                    "│ ⊙     ⊙ │",
-                    "│    ⊙    │",
-                    "│ ⊙     ⊙ │"
+                    "│ ●     ● │",
+                    "│    ●    │",
+                    "│ ●     ● │"
                 },
                 {
-                    "│ ⊙     ⊙ │",
-                    "│ ⊙     ⊙ │",
-                    "│ ⊙     ⊙ │"
+                    "│ ●     ● │",
+                    "│ ●     ● │",
+                    "│ ●     ● │"
                 }
             };
 

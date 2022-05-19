@@ -9,7 +9,18 @@ namespace CMP1903M_Assessment_2
     public class HumanPlayer : Player
     {
         /// <summary>
-        /// Default initializer for the Human Player.
+        /// Default constructor for Human Player with no attributes. Immediately raises an exception.
+        /// </summary>
+        /// <exception cref="InvalidPlayerInstantiationException">
+        /// Raises this as the required attributes aren't included.
+        /// </exception>
+        public HumanPlayer()
+        {
+            throw new InvalidPlayerInstantiationException();
+        }
+        
+        /// <summary>
+        /// Constructor for the HumanPlayer class when the GameUi and player number is included.
         /// </summary>
         /// <param name="screen">The GameUI object for the game.</param>
         /// <param name="playerNumber">The number of the player.</param>
@@ -44,6 +55,7 @@ namespace CMP1903M_Assessment_2
         public override void RollDice(ref D6[] dice, bool autoRoll = false)
         {
             int sleep = 8;
+            var random = new Random();
 
             if (!autoRoll)
             {
@@ -52,11 +64,12 @@ namespace CMP1903M_Assessment_2
             }
 
             // Rolling dice animation.
+            // Many thanks to Alex Elwell for recommending changing the dice value in place for the animation.
             while(sleep < 260)
             {
                 foreach (D6 die in dice)
                 {
-                    die.Roll();
+                    die.Roll(random.Next(1, 7));
                 }
                 Screen.PrintBoard(dice, "Rolling....");
                 Thread.Sleep(sleep);

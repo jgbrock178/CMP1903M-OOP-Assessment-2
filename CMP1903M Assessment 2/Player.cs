@@ -1,3 +1,5 @@
+using System;
+
 namespace CMP1903M_Assessment_2
 {
     /// <summary>
@@ -26,24 +28,39 @@ namespace CMP1903M_Assessment_2
         protected GameUi Screen { get; set; }
 
         /// <summary>
-        /// Abstract method to roll the dice.
+        /// Virtual method to roll the dice.
         /// </summary>
         /// <param name="dice">A D6 array of the dice in play.</param>
         /// <param name="autoRoll">Whether to auto-roll the dice, or prompt the user to press a key to roll them</param>
-        public abstract void RollDice(ref D6[] dice, bool autoRoll = false);
-        
-        /// <summary>
-        /// Default initializer for the Player.
-        /// </summary>
-        protected Player(){}
+        public virtual void RollDice(ref D6[] dice, bool autoRoll = false)
+        {
+            var random = new Random();
+            int sleep = 8;
+            
+            while(sleep < 260)
+            {
+                foreach (D6 die in dice)
+                {
+                    die.Roll(random.Next(1, 7));
+                }
+                sleep = Convert.ToInt32(sleep * 1.2);
+            }
+        }
 
         /// <summary>
-        /// Initializer for the player when Game UI is passed.
+        /// Default constructor for the Player.
+        /// </summary>
+        protected Player() { }
+
+        /// <summary>
+        /// Constructor for the player when Game UI is passed.
         /// </summary>
         /// <param name="screen">The GameUI object for the game.</param>
-        protected Player(GameUi screen)
+        /// <param name="playerNumber">The number to associate with the player.</param>
+        protected Player(GameUi screen, int playerNumber)
         {
             Screen = screen;
+            PlayerNumber = playerNumber;
         }
 
         /// <summary>

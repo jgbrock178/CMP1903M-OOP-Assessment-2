@@ -10,7 +10,18 @@ namespace CMP1903M_Assessment_2
     public class ComputerPlayer : Player
     {
         /// <summary>
-        /// Default initializer for the ComputerPlayer class.
+        /// Default constructor for ComputerPlayer with no attributes. Immediately raises an exception.
+        /// </summary>
+        /// <exception cref="InvalidPlayerInstantiationException">
+        /// Raises this as the required attributes aren't included.
+        /// </exception>
+        public ComputerPlayer()
+        {
+            throw new InvalidPlayerInstantiationException();
+        }
+        
+        /// <summary>
+        /// Constructor for the ComputerPlayer class when GameUi and a player number specified.
         /// </summary>
         /// <param name="screen">The UI object of the game.</param>
         /// <param name="playerNumber">The number of the player.</param>
@@ -52,6 +63,7 @@ namespace CMP1903M_Assessment_2
         /// <param name="autoRoll">Whether to mimic an auto-roll.</param>
         public override void RollDice(ref D6[] dice, bool autoRoll = false)
         {
+            var random = new Random();
             int sleep = 8;
 
             if (!autoRoll)
@@ -61,11 +73,12 @@ namespace CMP1903M_Assessment_2
             }
 
             // Rolling dice animation.
+            // Many thanks to Alex Elwell for recommending changing the dice value in place for the animation.
             while(sleep < 260)
             {
                 foreach (D6 die in dice)
                 {
-                    die.Roll();
+                    die.Roll(random.Next(1, 7));
                 }
                 Screen.PrintBoard(dice, "Rolling....");
                 Thread.Sleep(sleep);

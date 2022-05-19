@@ -9,7 +9,8 @@ namespace CMP1903M_Assessment_2
     /// </summary>
     public class GameUi
     {
-        private string LeftMargin { set; get; } = new string(' ', 2);
+        // Protected to allow future 
+        private string LeftMargin { get; } = new string(' ', 2);
         private Player[] _players;
         private Player _currentPlayer;
         
@@ -30,6 +31,30 @@ namespace CMP1903M_Assessment_2
         private Player[] Players()
         {
             return _players;
+        }
+        
+        /// <summary>
+        /// Wrapper to move the cursor to the top left of the console. Used to write over previous content. Usually
+        /// console.clear() would be sufficient, however this causes screen flashing on Windows terminal. Over-writing
+        /// previous content fixes this.
+        /// </summary>
+        private void ResetCursorPosition()
+        {
+            ClearEndOfConsole();
+            Console.SetCursorPosition(0, 0);
+        }
+
+        /// <summary>
+        /// Writes 5 blank lines to the console. Used to ensure any UI that is fewer lines will not show the previous
+        /// UI screen below it.
+        /// </summary>
+        private void ClearEndOfConsole()
+        {
+            for (int i = 0; i < 5; i++)
+            {
+                Console.WriteLine(new string(' ', 80));   
+            }
+            Console.CursorTop -= 5;
         }
 
         /// <summary>
@@ -183,18 +208,18 @@ namespace CMP1903M_Assessment_2
         /// <returns>A string containing the players name.</returns>
         public string GetPlayerName(string prompt)
         {
-            Console.Clear();
+            ResetCursorPosition();
             PrintMenuHeader();
             prompt += ": ";
             Console.CursorTop -= 1;
-            Console.WriteLine(@" ╠═══════════════════════════════════════════════════════════════╣");
-            Console.WriteLine($" ║ {prompt,-61} ║");
-            Console.WriteLine(@" ╚═══════════════════════════════════════════════════════════════╝");
+            Console.WriteLine(LeftMargin + @"╠═══════════════════════════════════════════════════════════════╣");
+            Console.WriteLine(LeftMargin + $"║ {prompt,-61} ║");
+            Console.WriteLine(LeftMargin + @"╚═══════════════════════════════════════════════════════════════╝");
             Console.ForegroundColor = ConsoleColor.DarkGray;
-            Console.WriteLine(@"Press enter to confirm.".PadCenter(66));
+            Console.WriteLine(LeftMargin + @"Maximum 10 characters. Press enter to confirm.".PadCenter(66));
             Console.ResetColor();
             Console.CursorTop -= 3;
-            Console.CursorLeft += prompt.Length + 3;
+            Console.CursorLeft += prompt.Length + LeftMargin.Length + 2;
             
             return ReadKey(10);
         }
@@ -209,17 +234,18 @@ namespace CMP1903M_Assessment_2
         public string GetValidatedUserInput(string prompt, string[] validInputs)
         {
             prompt += ": ";
-            Console.Clear();
+            ResetCursorPosition();
             PrintMenuHeader();
             Console.CursorTop -= 1;
-            Console.WriteLine(@" ╠═══════════════════════════════════════════════════════════════╣");
-            Console.WriteLine($" ║ {prompt,-61} ║");
-            Console.WriteLine(@" ╚═══════════════════════════════════════════════════════════════╝");
+            Console.WriteLine(LeftMargin + @"╠═══════════════════════════════════════════════════════════════╣");
+            Console.WriteLine(LeftMargin + $"║ {prompt,-61} ║");
+            Console.WriteLine(LeftMargin + @"╚═══════════════════════════════════════════════════════════════╝");
             Console.ForegroundColor = ConsoleColor.DarkGray;
-            Console.WriteLine(@"Press enter to confirm.".PadCenter(66));
+            Console.WriteLine(LeftMargin + @"Press enter to confirm.".PadCenter(66));
             Console.ResetColor();
+            ClearEndOfConsole();
             Console.CursorTop -= 3;
-            Console.CursorLeft += prompt.Length + 3;
+            Console.CursorLeft += prompt.Length + LeftMargin.Length + 2;
             
             string option = ReadKey();
             Console.CursorTop += 1;
@@ -228,19 +254,19 @@ namespace CMP1903M_Assessment_2
             {
                 Console.WriteLine();
                 Console.CursorTop -= 3;
-                Console.WriteLine(@" ╠═══════════════════════════════════════════════════════════════╣");
-                Console.Write(" ║ ");
+                Console.WriteLine(LeftMargin + @"╠═══════════════════════════════════════════════════════════════╣");
+                Console.Write(LeftMargin + "║ ");
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.Write("Invalid input, please try again.".PadRight(61));
                 Console.ResetColor();
                 Console.WriteLine(" ║");
-                Console.WriteLine($" ║ {prompt,-61} ║");
-                Console.WriteLine(@" ╚═══════════════════════════════════════════════════════════════╝");
+                Console.WriteLine(LeftMargin + $"║ {prompt,-61} ║");
+                Console.WriteLine(LeftMargin + @"╚═══════════════════════════════════════════════════════════════╝");
                 Console.ForegroundColor = ConsoleColor.DarkGray;
-                Console.WriteLine(@"Press enter to confirm.".PadCenter(66));
+                Console.WriteLine(LeftMargin + @"Press enter to confirm.".PadCenter(66));
                 Console.ResetColor();
                 Console.CursorTop -= 3;
-                Console.CursorLeft += prompt.Length + 3;
+                Console.CursorLeft += prompt.Length + LeftMargin.Length + 2;
                 option = ReadKey();
             }
 
@@ -255,14 +281,13 @@ namespace CMP1903M_Assessment_2
         public bool QuitConfirmation()
         {
             int index = 0;
-            //PrintQuitConfirmation();
 
             while(true)
             {
                 PrintQuitConfirmation(index);
                 Console.CursorVisible = false;
                 
-                var keyPressed = Console.ReadKey();
+                var keyPressed = Console.ReadKey(true);
                 
                 if (keyPressed.Key == ConsoleKey.RightArrow)
                 {
@@ -324,14 +349,15 @@ namespace CMP1903M_Assessment_2
                     "╰╴    ╶╯"
                 }
             };
-            Console.Clear();
+            
+            ResetCursorPosition();
             PrintMenuHeader();
             int yesStateIndex = 0;
             int noStateIndex = 0;
 
             for (int i = 0; i < 3; i++)
             {
-                Console.Write(" ║");
+                Console.Write(LeftMargin + "║");
                 Console.Write(i == 1 ? "  Are you sure you want to quit?      " : new string(' ', 38));
 
                 if (selectedOption == 0)
@@ -355,9 +381,10 @@ namespace CMP1903M_Assessment_2
                 Console.WriteLine("    ║");
             }
             
-            Console.WriteLine(@" ╚═══════════════════════════════════════════════════════════════╝");
+            Console.WriteLine(LeftMargin + @"╚═══════════════════════════════════════════════════════════════╝");
             Console.ForegroundColor = ConsoleColor.DarkGray;
-            Console.WriteLine(@"Use arrow keys to select option.".PadCenter(66));
+            Console.WriteLine(LeftMargin + @"Use arrow keys to select option and press enter to confirm.".PadCenter(66));
+            ClearEndOfConsole();
             Console.ResetColor();
         }
         
@@ -485,9 +512,8 @@ namespace CMP1903M_Assessment_2
 
             string[] player1Score = DrawScore(playerOne.Score, 3);
             string[] player2Score = DrawScore(playerTwo.Score, 3);
-
-            Console.SetCursorPosition(0, 0);
-            //Console.Clear();
+            
+            ResetCursorPosition();
             Console.WriteLine("");
             Console.WriteLine(LeftMargin + "╔══════════════╤═════════════════════════════════╤══════════════╗");
             Console.Write(LeftMargin + "║  ");
@@ -554,8 +580,8 @@ namespace CMP1903M_Assessment_2
             string[] lastRoundScore = DrawScore(lastPlayer.Score, 3);
             string[] currentScore = DrawScore(CurrentPlayer().Score, 3);
             string[][] scoreMap = PrepareScoreMap();
-
-            Console.Clear();
+            
+            ResetCursorPosition();
             Console.WriteLine("");
             Console.WriteLine(LeftMargin + "╔══════════════╤══════════════╤═════════════════════════════════╗");
             Console.Write(LeftMargin + "║ ");
@@ -611,29 +637,6 @@ namespace CMP1903M_Assessment_2
             Console.Write("Scores");
             Console.ResetColor();
             Console.WriteLine("╶────────────╢");
-
-            //Console.WriteLine(" ╔╤╤══════════════╤═════════════════════════════╤══════════════╤╤╗");
-            //Console.WriteLine(" ║││  Player One  │                             │  Player Two  ││║");
-            //Console.WriteLine(" ║││ ╭──╮╭──╮╭──╮ │  J   L   E   L   S   T   K  │ ╭──╮ ╶┐ ╭──╮ ││║");
-            //Console.WriteLine(" ║││ │  ││  ││  │ │ 000 000 000 000 010 000 000 │ │  │  │ │  │ ││║");
-            //Console.WriteLine(" ║││ ╰──╯╰──╯╰──╯ │              ▲              │ ╰──╯ ╶┴╴╰──╯ ││║");
-            //Console.WriteLine(" ╟┴┴──────────────╯                             ╰──────────────┴┴╢");
-            //Console.WriteLine(" ║                                                               ║");
-            
-            //Console.WriteLine(" ╔══════════════╤══════════════╤═════════════════════════════════╗");
-            //Console.WriteLine(" ║      Max     │    Jenny     │                                 ║");
-            //Console.WriteLine(" ║ ╭──╮╭──╮╭──╮ │ ╭──╮╭──╮╭──╮ │   Max  Jen  Mar  Lis  Sco  Bob  ║");
-            //Console.WriteLine(" ║ │  ││  ││  │ │ │  ││  ││  │ │   000  000  000  000  010  000  ║");
-            //Console.WriteLine(" ║ ╰──╯╰──╯╰──╯ │ ╰──╯╰──╯╰──╯ │         ▲                       ║");
-            //Console.WriteLine(" ╟─╴LAST ROUND╶─┴─╴THIS ROUND╶─┴─────────────╴SCORES╶────────────╢");
-            //Console.WriteLine(" ║                                                               ║");
-
-            //Console.WriteLine(" ╔╤╤═══════════════════════════╤═══╤═══════════════════════════╤╤╗");
-            //Console.WriteLine(" ║││ ╭──╮╭──╮╭──╮      John    │   │    Lisa      ╭──╮ ╶┐ ╭──╮ ││║");
-            //Console.WriteLine(" ║││ │  ││  ││  │ ╭────────────╯   ╰────────────╮ │  │  │ │  │ ││║");
-            //Console.WriteLine(" ║││ ╰──╯╰──╯╰──╯ │         ─ ─ ━ ━ ─ ─         │ ╰──╯ ╶┴╴╰──╯ ││║");
-            //Console.WriteLine(" ╟┴┴──────────────╯                             ╰──────────────┴┴╢");
-            //Console.WriteLine(" ║                                                               ║");
         }
 
         /// <summary>
@@ -648,9 +651,9 @@ namespace CMP1903M_Assessment_2
         /// </list>
         /// <example>
         /// <code>
-        ///   Max  Jen  Mar  Lis  Sco  Bob // First 3 letters of name
-        ///   000  000  000  000  010  000 // Score
-        ///         ▲                      // Current player indicator
+        ///   Max  Jen  Mar  Lis  Sco  Bob  (First 3 letters of name)
+        ///   000  000  000  000  010  000  (Score)
+        ///         ▲                       (Current player indicator)
         /// </code>
         /// </example>
         /// </returns>
@@ -693,17 +696,17 @@ namespace CMP1903M_Assessment_2
             };
             
             Console.WriteLine("");
-            Console.WriteLine(@" ╔═══════════════════════════════════════════════════════════════╗");
+            Console.WriteLine(LeftMargin + @"╔═══════════════════════════════════════════════════════════════╗");
             foreach (string line in titleLogo)
             {
-                Console.Write(" ║ ");
+                Console.Write(LeftMargin + "║ ");
                 Console.ForegroundColor = ConsoleColor.Green;
                 Console.Write(line);
                 Console.ResetColor();
                 Console.WriteLine(" ║");
             }
-            Console.WriteLine(@" ║                                                               ║");
-            Console.WriteLine(@" ╠═══════════════════════════════════════════════════════════════╣");
+            Console.WriteLine(LeftMargin + @"║                                                               ║");
+            Console.WriteLine(LeftMargin + @"╠═══════════════════════════════════════════════════════════════╣");
         }
         
         /// <summary>
@@ -753,18 +756,18 @@ namespace CMP1903M_Assessment_2
                     "╰╴      ╶╯"
                 }
             };
-
-            Console.Clear();
-            PrintMenuHeader();
             
             int playComputerStateIndex = 0;
             int multiPlayerStateIndex = 0;
             int quitStateIndex = 0;
+            
+            ResetCursorPosition();
+            PrintMenuHeader();
 
             // Output three rows to draw the buttons. Colours the currently selected button.
             for (int i = 0; i < 3; i++)
             {
-                Console.Write(" ║  ");
+                Console.Write(LeftMargin + "║  ");
                 if (selectedOption == 0)
                 {
                     Console.ForegroundColor = ConsoleColor.Blue;
@@ -791,9 +794,10 @@ namespace CMP1903M_Assessment_2
                 Console.WriteLine("  ║");
             }
 
-            Console.WriteLine(@" ╚═══════════════════════════════════════════════════════════════╝");
+            Console.WriteLine(LeftMargin + @"╚═══════════════════════════════════════════════════════════════╝");
             Console.ForegroundColor = ConsoleColor.DarkGray;
-            Console.WriteLine(@"Use arrow keys to select option.".PadCenter(66));
+            Console.WriteLine(LeftMargin + @"Use arrow keys to select option and press enter to confirm.".PadCenter(66));
+            ClearEndOfConsole();
             Console.ResetColor();
         }
         
@@ -806,14 +810,14 @@ namespace CMP1903M_Assessment_2
             string[,] playAgainStates = new string[,]
             {
                 {
-                    "                ",
-                    "   Play Again   ",
-                    "                "
+                    "                  ",
+                    "   Same Players   ",
+                    "                  "
                 },
                 {
-                    "╭╴            ╶╮",
-                    "│  Play Again  │",
-                    "╰╴            ╶╯"
+                    "╭╴              ╶╮",
+                    "│  Same Players  │",
+                    "╰╴              ╶╯"
                 }
             };
 
@@ -854,7 +858,7 @@ namespace CMP1903M_Assessment_2
             // Output three rows to draw the buttons. Colours the currently selected button.
             for (int i = 0; i < 3; i++)
             {
-                Console.Write(" ║    ");
+                Console.Write(LeftMargin + "║   ");
                 if (selectedOption == 0)
                 {
                     Console.ForegroundColor = ConsoleColor.Blue;
@@ -878,12 +882,12 @@ namespace CMP1903M_Assessment_2
                 }
                 Console.Write(quitStates[quitStateIndex, i]);
                 Console.ResetColor();
-                Console.WriteLine("    ║");
+                Console.WriteLine("   ║");
             }
 
-            Console.WriteLine(@" ╚═══════════════════════════════════════════════════════════════╝");
+            Console.WriteLine(LeftMargin + @"╚═══════════════════════════════════════════════════════════════╝");
             Console.ForegroundColor = ConsoleColor.DarkGray;
-            Console.WriteLine(@"Use arrow keys to select option.".PadCenter(66));
+            Console.WriteLine(LeftMargin + @"Use arrow keys to select option and press enter to confirm.".PadCenter(66));
             Console.ResetColor();
         }
 
@@ -903,22 +907,22 @@ namespace CMP1903M_Assessment_2
                 @"| |__| | (_| | | | | | |  __/ | |__| |\ V /  __/ |   ",
                 @" \_____|\__,_|_| |_| |_|\___|  \____/  \_/ \___|_|   "
             };
-
-            Console.Clear();
+            
+            ResetCursorPosition();
             Console.WriteLine("");
-            Console.WriteLine(@" ╔═══════════════════════════════════════════════════════════════╗");
+            Console.WriteLine(LeftMargin + @"╔═══════════════════════════════════════════════════════════════╗");
             foreach (string line in gameOverMessage)
             {
-                Console.Write(" ║ ");
+                Console.Write(LeftMargin + "║ ");
                 Console.ForegroundColor = ConsoleColor.Green;
                 Console.Write(line.PadCenter(61));
                 Console.ResetColor();
                 Console.WriteLine(" ║");
             }
-            Console.WriteLine($" ║ {" ".PadCenter(61)} ║");
-            Console.WriteLine($" ║ {(winner.Name + " won the game with a score of "+ winner.Score).PadCenter(61)} ║");
-            Console.WriteLine($" ║ {" ".PadCenter(61)} ║");
-            Console.WriteLine(@" ╠═══════════════════════════════════════════════════════════════╣");
+            Console.WriteLine(LeftMargin + $"║ {" ".PadCenter(61)} ║");
+            Console.WriteLine(LeftMargin + $"║ {(winner.Name + " won the game with a score of "+ winner.Score).PadCenter(61)} ║");
+            Console.WriteLine(LeftMargin + $"║ {" ".PadCenter(61)} ║");
+            Console.WriteLine(LeftMargin + @"╠═══════════════════════════════════════════════════════════════╣");
         }
         
         /// <summary>
