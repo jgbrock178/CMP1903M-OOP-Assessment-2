@@ -6,6 +6,7 @@ namespace CMP1903M_Assessment_2
     /// <summary>
     /// Main entry way for the program.
     /// </summary>
+    // ReSharper disable once ClassNeverInstantiated.Global
     internal class Program
     {
         public static void Main(string[] args)

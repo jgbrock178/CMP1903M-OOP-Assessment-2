@@ -208,7 +208,7 @@ namespace CMP1903M_Assessment_2
         {
             Screen = new GameUi();
             bool skipMenu = false;
-            bool quitConfirmed = false;
+            bool quitConfirmed;
             int option = 0;
             while (true)
             {
