@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Text;
 
-namespace CMP1903M_Assessment_2
+namespace CMP1903M_Assessment_2.Classes
 {
     /// <summary>
     /// Main entry way for the program.

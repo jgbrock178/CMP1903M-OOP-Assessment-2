@@ -1,7 +1,7 @@
 using System;
 using System.Runtime.CompilerServices;
 
-namespace CMP1903M_Assessment_2
+namespace CMP1903M_Assessment_2.Exceptions
 {
     /// <summary>
     /// A custom exception class for invalid die values.

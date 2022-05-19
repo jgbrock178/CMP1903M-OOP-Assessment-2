@@ -1,7 +1,9 @@
 using System;
 using System.Linq;
+using CMP1903M_Assessment_2.Exceptions;
+using CMP1903M_Assessment_2.Interfaces;
 
-namespace CMP1903M_Assessment_2
+namespace CMP1903M_Assessment_2.Classes
 {
     /// <summary>
     /// A representation of a D6 die (standard die with 6 sides).

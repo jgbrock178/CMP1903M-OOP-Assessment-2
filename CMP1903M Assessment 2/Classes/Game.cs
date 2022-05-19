@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 
-namespace CMP1903M_Assessment_2
+namespace CMP1903M_Assessment_2.Classes
 {
     /// <summary>
     /// Class for the main game logic.

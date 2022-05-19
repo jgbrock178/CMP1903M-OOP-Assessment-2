@@ -1,8 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using CMP1903M_Assessment_2.Extensions;
 
-namespace CMP1903M_Assessment_2
+namespace CMP1903M_Assessment_2.Classes
 {
     /// <summary>
     /// Contains all logic for the Game UI in the console.

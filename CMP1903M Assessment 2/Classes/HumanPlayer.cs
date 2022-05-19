@@ -1,7 +1,8 @@
 using System;
 using System.Threading;
+using CMP1903M_Assessment_2.Exceptions;
 
-namespace CMP1903M_Assessment_2
+namespace CMP1903M_Assessment_2.Classes
 {
     /// <summary>
     /// Human player class.

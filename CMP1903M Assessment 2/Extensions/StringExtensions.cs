@@ -1,4 +1,4 @@
-namespace CMP1903M_Assessment_2
+namespace CMP1903M_Assessment_2.Extensions
 {
     /// <summary>
     /// Extensions to the String type.
